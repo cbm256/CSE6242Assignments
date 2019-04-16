@@ -1,0 +1,62 @@
+****************************************
+Q3.1
+
+Linear Regression - 
+	Training Accuracy: 86.210
+	Testing Accuracy: 82.900
+
+SVM -
+	Training Accuracy:80.237 
+	Testing Accuracy: 80.246
+
+MLP - 
+	Training Accuracy: 98.2
+	Testing Accuracy: 78.8
+
+Random Forest - 
+	Training Accuracy: 99.7
+	Testing Accuracy: 94.7
+
+****************************************
+Q3.2 - Hyperparameter tuning
+
+Random Forest - 
+	n_estimators values tested (at least 3): 5,10,50
+
+	max_depth values tested (at least 3): 10,15,50
+		
+	Best combination of parameter values:
+		n_estimators: 50
+		max_depth: 50
+
+	Testing Accuracy before tuning (default parameters):94.7
+	Testing Accuracy after tuning: 95.9
+
+
+SVM -
+	Kernels values tested: rbf, linear
+	C values tested (at least 3):0.0000001,0.0001,0.01
+		
+	Best combination of parameter values: 
+		Kernel: rbf
+		C: 0.0000001
+
+	Testing Accuracy before tuning (default parameters): 80.246
+	Testing Accuracy after tuning:80.2
+
+****************************************
+Q3.3
+
+For your SVM's CV run from Q3.2, state the highest mean testing accuracy 
+across the sets of parameter values and its corresponding mean train score and mean fit time. 
+
+SVM's highest mean testing/cross-validated accuracy (best score): 0.802
+SVM's mean train score: 0.802
+SVM's mean fit time: 0.35
+
+****************************************
+Q3.4
+
+Best Classifier: Random Forest
+Why: Random forest has low variation between accuracy prediction on train and test datasets and also the validation accuracy (test accuracy) is very high.
+
