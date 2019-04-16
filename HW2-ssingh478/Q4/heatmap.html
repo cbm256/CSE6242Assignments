@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style>
+  .axis path,
+  .axis line {
+    fill: none;
+    stroke: black;
+    shape-rendering: crispEdges;
+    display: none;
+  }
+
+  .axis text {
+      font-family: sans-serif;
+      font-size: 11px;
+  }
+  .select
+  {
+   font-family: sans-serif
+   font-size: 11px;}
+</style>
+<p font-weight="bold" align="center"><b>Visualizing Wizarding Houses and Spells</b></p>
+<div id ="dropdown" align="center"><span> House </span></div>
+
+
+<div class="heatmap"></div>
+
+<script src="../lib/d3.v3.min.js"></script>
+
+<script>
+  var itemSize = 22*2,
+      cellSize = itemSize - 1,
+      margin = {top: 30, right: 20, bottom: 20, left: 120};
+
+  var width = 750 - margin.right - margin.left,
+      height = 700 - margin.top - margin.bottom;
+
+  var datasetm=[]
+
+  d3.csv('heatmap.csv', function ( data ) {
+
+    data.forEach(function(d) {
+        d.SpellType = d.SpellType;
+        d.House=d.House;
+        for (i=0;i<7;i++){
+         if (i==0){
+         datasetm.push({'Spell':d.SpellType,'House':d.House,'Book':"Sorcerer's Stone",'value':+d["Sorcerer's Stone"]});
+         }
+         if (i==1){
+         datasetm.push({'Spell':d.SpellType,'House':d.House,'Book':"Chamber of Secrets",'value':+d["Chamber of Secrets"]});
+         }
+         if (i==2){
+         datasetm.push({'Spell':d.SpellType,'House':d.House,'Book':"Prisoner of Azkaban",'value':+d["Prisoner of Azkaban"]});
+         }
+         if (i==3){
+         datasetm.push({'Spell':d.SpellType,'House':d.House,'Book':"Goblet of Fire",'value':+d["Goblet of Fire"]});
+         }
+         if (i==4){
+         datasetm.push({'Spell':d.SpellType,'House':d.House,'Book':"Order of the Phoenix",'value':+d["Order of the Phoenix"]});
+         }
+         if (i==5){
+         datasetm.push({'Spell':d.SpellType,'House':d.House,'Book':"Half Blood Prince",'value':+d["Half Blood Prince"]});
+         }
+         if (i==6){
+         datasetm.push({'Spell':d.SpellType,'House':d.House,'Book':"Deathly Hallows",'value':+d["Deathly Hallows"]});
+         }
+        }
+      })
+   var count=0;
+   console.log(datasetm)
+   var opthouse = ["Gryffindor", "Hufflepuff", "Ravenclaw","Slytherin"];
+
+   var select = d3.select('#dropdown')
+    .append('select')
+    .attr('class','select')
+    //.attr("transform", "translate(" + 100 + "," + 0 + ")")
+    .on('change',onchange)
+
+   var options = select
+     .selectAll('option')
+     .data(opthouse).enter()
+     .append('option')
+     .text(function (d) { return d; });
+     //default
+    var result=datasetm.filter(function (datus){return datus.House=="Gryffindor";});
+   result= result.sort(function (a, b) {
+    var nameA=a.Spell
+    var nameB=b.Spell
+   if (nameA < nameB) {
+    return -1;
+  }
+  if (nameA > nameB) {
+    return 1;
+  }
+
+  // names must be equal
+  return 0;
+});
+   console.log(result)
+
+    var x_elements = d3.set(result.map(function( item ) { return item.Spell; } )).values(),
+        y_elements = d3.set(result.map(function( item ) { return item.Book; } )).values();
+
+    var xScale = d3.scale.ordinal()
+        .domain(x_elements)
+        .rangeBands([0, x_elements.length * itemSize]);
+
+    var xAxis = d3.svg.axis()
+        .scale(xScale)
+        .tickFormat(function (d) {
+            return d;
+        })
+        .orient("bottom");
+
+    var yScale = d3.scale.ordinal()
+        .domain(y_elements)
+        .rangeBands([0, y_elements.length * itemSize]);
+
+var xlscale = d3.scale.linear()
+    .domain([d3.min(result,function(d){return d.value;}),d3.max(result,function(d){ return d.value;})])
+    .range([0, 200])
+
+console.log(xlscale(70.3333))
+    var yAxis = d3.svg.axis()
+        .scale(yScale)
+        .tickFormat(function (d) {
+            return d;
+        })
+        .orient("left");
+
+    var colorScale = d3.scale.quantize()
+        .domain([0,d3.max(result,function(d){ return d.value;})])
+        .range(['#fff7f3','#fde0dd','#fcc5c0','#fa9fb5','#f768a1','#dd3497','#ae017e','#7a0177','#49006a']);
+     //d3.min(result,function(d){return d.value;})
+    //console.log(colorScale.ticks(10));
+
+    var svg = d3.select('.heatmap')
+        .append("svg")
+        .attr("width", width + margin.left + margin.right)
+        .attr("height", height + margin.top + margin.bottom)
+        .attr("transform", "translate(" + margin.left*4.2 + "," + 0 + ")")
+        .append("g")
+        .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+    var cells = svg.selectAll('rect')
+        .data(result)
+        .enter().append('g').append('rect')
+        .attr('class', 'cell')
+        .attr('width', cellSize)
+        .attr('height', cellSize)
+        .attr('y', function(d) { return yScale(d.Book); })
+        .attr('x', function(d) { return xScale(d.Spell); })
+        .attr('fill', function(d) { return colorScale(d.value); });
+
+    svg.append("g")
+        .attr("class", "y axis")
+        .call(yAxis)
+        .selectAll('text')
+        .attr('font-weight', 'normal')
+        .attr("dx", ".1em");
+
+    svg.append("g")
+        .attr("class", "x axis")
+        .attr("transform","translate(" + 0 + "," + y_elements.length * itemSize + ")")
+        .call(xAxis)
+        .selectAll('text')
+        .attr('font-weight', 'normal')
+        .style("text-anchor", "end")
+        .attr("dx", "-1em")
+        .attr("dy", "-.5em")
+        .attr("transform", function (d) {
+            return "rotate(-90)";
+        });
+
+ var legend=svg.append("g").selectAll("rect")
+        .data(colorScale.range().map(function(d) {
+        d = colorScale.invertExtent(d);
+        //if (d[0] == null) d[0] = xlscale.domain()[0];
+        //if (d[1] == null) d[1] = xlscale.domain()[1];
+        //console.log((d[0]))
+        return d;
+        }))
+  .enter().append("rect")
+    .attr("height", 8)
+    .attr("x", function(d) {  return xlscale(d[0]); })
+    .attr("y",420)
+    .attr("width", function(d) { return xlscale(d[1]) - xlscale(d[0]); })
+    .attr("fill", function(d) { return colorScale(d[0]); });
+
+svg.append("text")
+    .attr("class", "caption")
+    .attr("x", xlscale.range()[0])
+    .attr("y", 410)
+    .attr("fill", "#000")
+    .attr("text-anchor", "start")
+    .attr("font-weight", "bold")
+    .text("No. of spells");
+
+svg.append("text")
+    .attr("class", "caption")
+    .attr("x", -60)
+    .attr("y", 0)
+    .attr("fill", "#000")
+    .attr("text-anchor", "start")
+    .attr("font-weight", "bold")
+    .text("Book");
+
+svg.append("text")
+    .attr("class", "caption")
+    .attr("x",380)
+    .attr("y", height-300)
+    .attr("fill", "#000")
+    .attr("text-anchor", "start")
+    .attr("font-weight", "bold")
+    .text("Spell Type");
+
+
+svg.append("g").call(d3.svg.axis()
+    .orient("bottom")
+    .scale(xlscale)
+    .tickSize(13)
+    .tickFormat(function(d) { return Math.round(d)  ; })
+    .tickValues(colorScale.range().map(function(d) {
+        d = colorScale.invertExtent(d);
+        //console.log(d)
+        return d[0];
+        })))
+    .attr("transform","translate(" + 0 + "," + 415 + ")")
+
+    .select(".domain")
+    .remove();
+
+
+    //
+
+  function onchange(){
+    if (count>=0){
+    svg.selectAll("*").remove();
+}
+ count=count+1;
+    selectValue = d3.select('select').property('value')
+   var result=datasetm.filter(function (datus){return datus.House==selectValue;});
+   result= result.sort(function (a, b) {
+    var nameA=a.Spell
+    var nameB=b.Spell
+   if (nameA < nameB) {
+    return -1;
+  }
+  if (nameA > nameB) {
+    return 1;
+  }
+
+  // names must be equal
+  return 0;
+});
+   console.log(result)
+
+    var x_elements = d3.set(result.map(function( item ) { return item.Spell; } )).values(),
+        y_elements = d3.set(result.map(function( item ) { return item.Book; } )).values();
+
+    var xScale = d3.scale.ordinal()
+        .domain(x_elements)
+        .rangeBands([0, x_elements.length * itemSize]);
+
+    var xAxis = d3.svg.axis()
+        .scale(xScale)
+        .tickFormat(function (d) {
+            return d;
+        })
+        .orient("bottom");
+
+    var yScale = d3.scale.ordinal()
+        .domain(y_elements)
+        .rangeBands([0, y_elements.length * itemSize]);
+
+var xlscale = d3.scale.linear()
+    .domain([d3.min(result,function(d){return d.value;}),d3.max(result,function(d){ return d.value;})])
+    .range([0, 200])
+
+console.log(xlscale(70.3333))
+    var yAxis = d3.svg.axis()
+        .scale(yScale)
+        .tickFormat(function (d) {
+            return d;
+        })
+        .orient("left");
+
+    var colorScale = d3.scale.quantize()
+        .domain([0,d3.max(result,function(d){ return d.value;})])
+        .range(['#fff7f3','#fde0dd','#fcc5c0','#fa9fb5','#f768a1','#dd3497','#ae017e','#7a0177','#49006a']);
+     //d3.min(result,function(d){return d.value;})
+    //console.log(colorScale.ticks(10));
+
+    /*var svg = d3.select('.heatmap')
+        .append("svg")
+        .attr("width", width + margin.left + margin.right)
+        .attr("height", height + margin.top + margin.bottom)
+        .append("g")
+        .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+*/
+    var cells = svg.selectAll('rect')
+        .data(result)
+        .enter().append('g').append('rect')
+        .attr('class', 'cell')
+        .attr('width', cellSize)
+        .attr('height', cellSize)
+        .attr('y', function(d) { return yScale(d.Book); })
+        .attr('x', function(d) { return xScale(d.Spell); })
+        .attr('fill', function(d) { return colorScale(d.value); });
+
+    svg.append("g")
+        .attr("class", "y axis")
+        .call(yAxis)
+        .selectAll('text')
+        .attr('font-weight', 'normal');
+
+    svg.append("g")
+        .attr("class", "x axis")
+        .attr("transform","translate(" + 0 + "," + y_elements.length * itemSize + ")")
+        .call(xAxis)
+        .selectAll('text')
+        .attr('font-weight', 'normal')
+        .style("text-anchor", "end")
+        .attr("dx", "-1em")
+        .attr("dy", "-.5em")
+        .attr("transform", function (d) {
+            return "rotate(-90)";
+        });
+
+ var legend=svg.append("g").selectAll("rect")
+        .data(colorScale.range().map(function(d) {
+        d = colorScale.invertExtent(d);
+        if (d[0] == null) d[0] = xlscale.domain()[0];
+        if (d[1] == null) d[1] = xlscale.domain()[1];
+        //console.log((d[0]))
+        return d;
+        }))
+  .enter().append("rect")
+    .attr("height", 8)
+    .attr("x", function(d) {  return xlscale(d[0]); })
+    .attr("y",420)
+    .attr("width", function(d) { return xlscale(d[1]) - xlscale(d[0]); })
+    .attr("fill", function(d) { return colorScale(d[0]); });
+
+svg.append("text")
+    .attr("class", "caption")
+    .attr("x", xlscale.range()[0])
+    .attr("y", 410)
+    .attr("fill", "#000")
+    .attr("text-anchor", "start")
+    .attr("font-weight", "bold")
+    .text("No. of spells");
+
+svg.append("text")
+    .attr("class", "caption")
+    .attr("x", -60)
+    .attr("y", 0)
+    .attr("fill", "#000")
+    .attr("text-anchor", "start")
+    .attr("font-weight", "bold")
+    .text("Book");
+
+svg.append("text")
+    .attr("class", "caption")
+    .attr("x",380)
+    .attr("y", height-300)
+    .attr("fill", "#000")
+    .attr("text-anchor", "start")
+    .attr("font-weight", "bold")
+    .text("Spell Type");
+
+svg.append("g").call(d3.svg.axis()
+    .orient("bottom")
+    .scale(xlscale)
+    .tickSize(13)
+    .tickFormat(function(d) { return Math.round(d)  ; })
+    .tickValues(colorScale.range().map(function(d) {
+        d = colorScale.invertExtent(d);
+        //console.log(d)
+        return d[0];
+        })))
+    .attr("transform","translate(" + 0 + "," + 415 + ")")
+
+    .select(".domain")
+    .remove();
+
+
+}
+  });
+</script>

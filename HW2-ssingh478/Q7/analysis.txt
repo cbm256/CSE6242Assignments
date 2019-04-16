@@ -1,0 +1,23 @@
+﻿Ease to develop (for developers)
+	D3 : Difficult as extensive coding is needed to be done in Javascript.
+	Tableau : Comparatively easy as only the know-how of software is needed.
+	R : R provides packages for visualization. It is difficult than Tableau but easier than D3.
+Ease to maintain the visualization (for developers)
+	D3 : D3 can be integrated to a data source and the visualization can be updated in real time.
+	Tableau : Tableau has difficulties in reading data from many sources like web ,NoSQL databases etc which can create maintenance issues
+	R:Better than Tableau but D3 is more advanced in this respect.
+	
+Usability of visualization developed (for end users)
+	D3 : D3 is the best in this respect and provides thorough visualizations.
+	Tableau :Tableau is good but is somewhat specific.
+	R :  R can not help in making very extensive visualizations
+	
+Scalability of visualization to “large” datasets
+	D3 : D3 can be slower for large datasets because coordinates and sizes of svg elements are calculated by data points
+	Tableau: Tableau can easily handle large data sets.
+	R :R can handle large data sets.
+
+System requirements to run the visualization (e.g., browsers, OS, software licensing) (for end users)
+	D3 : Completely Open Source.
+	Tableau : License Needed as it is propreitary.
+	R: Open Source but system requirements may be there for packages installation.

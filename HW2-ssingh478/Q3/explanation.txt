@@ -1,0 +1,2 @@
+3a.2: Wins+Nominations vs IMDB rating is better at separating the classes as evident from the plots. It is because a movie with more Wins and Nominations is more probable to have good rating.
+3.c.When the data on y-axis is on a very large scale it is prudent to use logarithmic scale. For data that is moderately large scaled, square scale makes more sense. Both scales should be used when we have non-negative values in data as both are undefined for negative values.

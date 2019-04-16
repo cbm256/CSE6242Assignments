@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+
+        <meta charset="utf-8">
+        <title>srsingh23</title>
+        <script type="text/javascript" src="../lib/d3.v3.min.js"></script>
+        <style type="text/css">
+
+            .axis path,
+            .axis line {
+                  fill: none;
+                  stroke: black;
+                  shape-rendering: crispEdges;
+                  }
+            .axis text {
+                  font-family: sans-serif;
+                  font-size: 11px;
+                  }
+            .pagebreak { page-break-before: always; }
+        </style>
+
+    </head>
+    <body>
+        <script type="text/javascript">
+        var dataset = [];
+        var datasetm=[];
+        //var numDataPoints =60;
+        //var xRange = 100;
+        //var yRange = 100;
+        var scale = d3.scale.linear()
+                        .domain([0,300])
+                        .range([50,100]);
+    var arc = d3.svg.symbol().type('circle')//.attr('fill','red')
+                    //.size(function(d){ return scale(d[1]); });
+    var arced = d3.svg.symbol().type('cross')//.attr('fill','blue')
+                    //.size(function(d){ return scale(d[1]); });
+
+    var arc1 = d3.svg.symbol().type('circle')//.attr('fill','red')
+                    .size(function(d){ return scale(d[1]); });
+    var arced1 = d3.svg.symbol().type('cross')//.attr('fill','blue')
+                    .size(function(d){ return scale(d[1]); });
+        /*for (var i = 0; i<numDataPoints;i++){
+             var newNumber1 = Math.round(Math.random()*xRange);
+             var newNumber2 = Math.round(Math.random()*yRange);
+             dataset.push([newNumber1, newNumber2]);
+             }
+*/
+  d3.csv("movies.csv", function(data) {
+        data.forEach(function(d) {
+        d.Id = +d.Id;
+        d.Year=+d.Year;
+        d.Runtime=+d.Runtime;
+        d.imdbRating=+d.imdbRating;
+        d.imdbVotes=+d.imdbVotes;
+        d.Budget=+d.Budget;
+        d.Gross=+d.Gross;
+        d.WinsNoms=+d.WinsNoms;
+        d.IsGoodRating=+d.IsGoodRating;
+datasetm.push((d));
+      })
+        console.log(datasetm[861]);
+
+for (var i = 0; i<datasetm.length;i++){
+
+       var newNumber1 = (datasetm[i]["imdbRating"]);
+        var newNumber2 = (datasetm[i]["WinsNoms"]);
+       var newNumber3 = (datasetm[i]["IsGoodRating"]);
+       var newNumber4 = (datasetm[i]["Budget"]);
+       var newNumber5=(datasetm[i]["imdbVotes"]);
+       dataset.push([newNumber1, newNumber2,newNumber3,newNumber4,newNumber5]);
+       }
+
+console.log(dataset);
+        //[ [5,20],
+                        //[480,90],
+                        //[250,50],
+                        //[100,33],
+                        //[330,95],
+                        //[410,12],
+                        //[475,44],
+                        //[25,67],
+                        //[85,21],
+                        //[220,88],
+                        //[600,150]
+
+                        //];
+
+    //Width and height
+    var w =1500;
+    var h =500;
+    var padding = 100; //
+    var xAvg = d3.mean(dataset, function(d) { return d[0]; });
+
+    // Create SVG   element
+    var xeScale = d3.scale.linear().domain([d3.min(dataset,function(d){return d[0];}),d3.max(dataset,function(d){return d[0];})]).range([padding,w-padding*2])
+    var xScale = d3.scale.linear().domain([d3.min(dataset,function(d){return d[0];}),d3.max(dataset,function(d){return d[0];})]).range([padding,w-padding*2]);
+    var yScale = d3.scale.linear().domain([d3.min(dataset,function(d){return d[1];}),d3.max(dataset,function(d){return d[1];})]).range([h-padding,padding]);
+    //var rScale = d3.scale.linear().domain([0,d3.max(dataset,function(d){return d[1];})]).range([2,5]);
+    var svgOne = d3.select("body")
+                .append("svg")
+                .attr("width",w)
+                .attr("height",h);
+    var xAxis = d3.svg.axis().scale(xScale).orient("bottom").ticks(10);
+    var yAxis = d3.svg.axis().scale(yScale).orient("left").ticks(10);
+
+
+    svgOne.selectAll('path')
+       .data(dataset)
+       .enter()
+       .append('path')
+       .attr('d',function(d){if (d[2]==0) { return arc(d);} return arced(d);})
+       .attr('fill',"white")
+       .style('stroke',function(d){if (d[2]==0 ) {
+    return "red";
+  }
+  return "blue";})
+  .attr('transform',function(d,i){ return "translate("+(xeScale(d[0]))+","+(yScale(d[1]))+")"; });
+       //.attr("cx",function(d){return xScale(d[0]);})
+       //.attr("cy",function(d){return yScale(d[1]);})
+       //.attr("r",function(d){return rScale(d[1]);});
+       //.attr("height",function(d,i){return d*4;})
+       //.attr("fill",function(d){return "rgb(0,0,"+(d*10)+")";});
+       datal=[[8.6,260,0,78,80],[8.6,240,1,78,80]]
+       console.log(datal)
+  svgOne.append('g').selectAll('path')
+       .data(datal)
+       .enter()
+       .append('path')
+       .attr('d',function(d){if (d[2]==0) { console.log(d[0]); return arc(d);} return arced(d);})
+       .attr('fill',"white")
+       .style('stroke',function(d){if (d[2]==0 ) {
+    return "red";
+  }
+  return "blue";})
+  .attr('transform',function(d,i){ return "translate("+(xeScale(d[0]))+","+(yScale(d[1]))+")"; });
+
+ /* svgOne.selectAll('path')
+       .data(dataset)
+       .enter()
+       .append('path')
+       .attr('d',function(d){if (d[2]==0) { return arc(d);} return arced(d);})
+       .attr('fill',"white")
+       .style('stroke',function(d){if (d[2]==0 ) {
+    return "red";
+  }
+  return "blue";})
+  .attr('transform',function(d,i){ return "translate("+(xeScale(d[0]))+","+(yScale(d[1]))+")"; });*/
+
+
+    svgOne.append("g").attr("class","axis").attr("transform","translate(0," + (h-padding) + ")").call(xAxis);
+    //.attr("text-anchor","middle");
+    svgOne.append("g").attr("class","axis").attr("transform","translate(" + padding + ",0)").call(yAxis);
+
+     svgOne.append("text").text('Wins+Nominations vs. IMDb Rating')
+    .attr("x",'750')
+    .attr("y",'20')
+    .attr("font-family","sans-serif")
+    .attr("font-size","21px")
+    .attr("fill","red")
+    .attr("text-anchor", "middle")
+
+
+    svgOne.append("text")      // text label for the x axis
+        .attr("x", w/2 )
+        .attr("y", h-padding/2 )
+        .style("text-anchor", "middle")
+        .text("IMDb Rating");
+
+svgOne.append("text")
+        //.attr("transform", "rotate(-90)")
+        .attr("y", -20)
+        .attr("x",-2*padding)
+
+        .attr("dy", "1em")
+        .style("text-anchor", "middle")
+        .text("Wins+Noms")
+        //.attr("transform", "rotate(-10)")
+        .attr("transform","rotate(-90)translate("+padding/2+","+1.5*padding+")");
+
+svgOne.append("text")      // text label for the x axis
+        .attr("x", xeScale(8.9))
+        .attr("y", yScale(255) )
+        .style("text-anchor", "middle")
+        .text("Bad Rating");
+
+
+svgOne.append("text")      // text label for the x axis
+        .attr("x", xeScale(8.9))
+        .attr("y", yScale(235) )
+        .style("text-anchor", "middle")
+        .text("Good Rating");
+
+//svgOne.appendHTML('<div class="pagebreak"></div>')
+
+d3.select("body").append("div").attr("class","pagebreak")
+
+ var svgTwo = d3.select("body")
+                .append("svg")
+                .attr("width",w)
+                .attr("height",h);
+
+    var yyScale = d3.scale.linear().domain([d3.min(dataset,function(d){return d[3];}),d3.max(dataset,function(d){return d[3];})]).range([h-padding,padding]);
+    var xxAxis = d3.svg.axis().scale(xScale).orient("bottom").ticks(10);
+    var yyAxis = d3.svg.axis().scale(yyScale).orient("left").ticks(10);
+
+    svgTwo.selectAll('path')
+       .data(dataset)
+       .enter()
+       .append('path')
+       .attr('d',function(d){if (d[2]==0) { return arc(d);} return arced(d);})
+       .attr('fill',"white")
+       .style('stroke',function(d){if (d[2]==0 ) {
+    return "red";
+  }
+  return "blue";})
+  .attr('transform',function(d,i){ return "translate("+(xeScale(d[0]))+","+(yyScale(d[3]))+")"; });
+       //.attr("cx",function(d){return xScale(d[0]);})
+       //.attr("cy",function(d){return yScale(d[1]);})
+       //.attr("r",function(d){return rScale(d[1]);});
+       //.attr("height",function(d,i){return d*4;})
+       //.attr("fill",function(d){return "rgb(0,0,"+(d*10)+")";});
+
+  datall=[[8.6,260,0,200000000,80],[8.6,240,1,180000000,80]]
+       console.log(datal)
+  svgTwo.append('g').selectAll('path')
+       .data(datall)
+       .enter()
+       .append('path')
+       .attr('d',function(d){if (d[2]==0) { console.log(d[0]); return arc(d);} return arced(d);})
+       .attr('fill',"white")
+       .style('stroke',function(d){if (d[2]==0 ) {
+    return "red";
+  }
+  return "blue";})
+  .attr('transform',function(d,i){ return "translate("+(xeScale(d[0]))+","+(yScale(d[1]))+")"; });
+
+
+    svgTwo.append("g").attr("class","axis").attr("transform","translate(0," + (h-padding) + ")").call(xxAxis);
+    //.attr("text-anchor","middle");
+    svgTwo.append("g").attr("class","axis").attr("transform","translate(" + padding + ",0)").call(yyAxis);
+
+     //svgOne.append("text").text('SUDHANSHU RAJ SINGH')
+    //.attr("x",'0')
+    //.attr("y",'20')
+    //.attr("font-family","sans-serif")
+    //.attr("font-size","21px")
+    //.attr("fill","red")
+ svgTwo.append("text").text('Budget vs. IMDb Rating')
+    .attr("x",'750')
+    .attr("y",'20')
+    .attr("font-family","sans-serif")
+    .attr("font-size","21px")
+    .attr("fill","red")
+    .attr("text-anchor", "middle")
+
+
+    svgTwo.append("text")      // text label for the x axis
+        .attr("x", w/2 )
+        .attr("y", h-padding/2 )
+        .style("text-anchor", "middle")
+        .text("IMDb Rating");
+
+svgTwo.append("text")
+        //.attr("transform", "rotate(-90)")
+        .attr("y", -20)
+        .attr("x",-2*padding)
+
+        .attr("dy", "1em")
+        .style("text-anchor", "middle")
+        .text("Budget")
+        //.attr("transform", "rotate(-10)")
+        .attr("transform","rotate(-90)translate("+padding/2+","+1.5*padding+")");
+
+
+svgTwo.append("text")      // text label for the x axis
+        .attr("x", xeScale(8.9))
+        .attr("y", yyScale(190000000) )
+        .style("text-anchor", "middle")
+        .text("Bad Rating");
+
+
+svgTwo.append("text")      // text label for the x axis
+        .attr("x", xeScale(8.9))
+        .attr("y", yyScale(175000000) )
+        .style("text-anchor", "middle")
+        .text("Good Rating");
+//New SVG Element
+d3.select("body").append("div").attr("class","pagebreak")
+
+ var svgThree = d3.select("body")
+                .append("svg")
+                .attr("width",w)
+                .attr("height",h);
+
+    var yyyScale = d3.scale.linear().domain([d3.min(dataset,function(d){return d[4];}),d3.max(dataset,function(d){return d[4];})]).range([h-padding,padding]);
+    var xxxAxis = d3.svg.axis().scale(xScale).orient("bottom").ticks(10);
+    var yyyAxis = d3.svg.axis().scale(yyScale).orient("left").ticks(10);
+
+    svgThree.selectAll('path')
+       .data(dataset)
+       .enter()
+       .append('path')
+       .attr('d',function(d){if (d[2]==0) { return arc1(d);} return arced1(d);})
+       .attr('fill',"white")
+       .style('stroke',function(d){if (d[2]==0 ) {
+    return "red";
+  }
+  return "blue";})
+  .attr('transform',function(d,i){ return "translate("+(xeScale(d[0]))+","+(yyyScale(d[4]))+")"; });
+       //.attr("cx",function(d){return xScale(d[0]);})
+       //.attr("cy",function(d){return yScale(d[1]);})
+       //.attr("r",function(d){return rScale(d[1]);});
+       //.attr("height",function(d,i){return d*4;})
+       //.attr("fill",function(d){return "rgb(0,0,"+(d*10)+")";});
+
+datall=[[8.9,260,0,200000000,80],[8.9,240,1,180000000,80]]
+       console.log(datal)
+  svgThree.append('g').selectAll('path')
+       .data(datall)
+       .enter()
+       .append('path')
+       .attr('d',function(d){if (d[2]==0) { console.log(d[0]); return arc(d);} return arced(d);})
+       .attr('fill',"white")
+       .style('stroke',function(d){if (d[2]==0 ) {
+    return "red";
+  }
+  return "blue";})
+  .attr('transform',function(d,i){ return "translate("+(xeScale(d[0]))+","+(yScale(d[1]))+")"; });
+
+    svgThree.append("g").attr("class","axis").attr("transform","translate(0," + (h-padding) + ")").call(xxxAxis);
+    //.attr("text-anchor","middle");
+    svgThree.append("g").attr("class","axis").attr("transform","translate(" + padding + ",0)").call(yyyAxis);
+ svgThree.append("text").text('Votes vs. IMDb Rating sized by Wins+Nominations')
+    .attr("x",'750')
+    .attr("y",'20')
+    .attr("font-family","sans-serif")
+    .attr("font-size","21px")
+    .attr("fill","red")
+    .attr("text-anchor", "middle")
+
+
+    svgThree.append("text")      // text label for the x axis
+        .attr("x", w/2 )
+        .attr("y", h-padding/2)
+        .style("text-anchor", "middle")
+        .text("IMDb Rating");
+
+svgThree.append("text")
+        //.attr("transform", "rotate(-90)")
+        .attr("y", -20)
+        .attr("x",-2*padding)
+
+        .attr("dy", "1em")
+        .style("text-anchor", "middle")
+        .text("IMDb Votes")
+        //.attr("transform", "rotate(-10)")
+        .attr("transform","rotate(-90)translate("+padding/2+","+1.5*padding+")");
+
+
+svgThree.append("text")      // text label for the x axis
+        .attr("x", xeScale(9.2))
+        .attr("y", yyScale(190000000) )
+        .style("text-anchor", "middle")
+        .text("Bad Rating");
+
+
+svgThree.append("text")      // text label for the x axis
+        .attr("x", xeScale(9.2))
+        .attr("y", yyScale(175000000) )
+        .style("text-anchor", "middle")
+        .text("Good Rating");
+d3.select("body").append("div").attr("class","pagebreak")
+
+
+//4th SVG
+    var xe4Scale = d3.scale.linear().domain([d3.min(dataset,function(d){return d[0];}),d3.max(dataset,function(d){return d[0];})]).range([padding,w-padding*2])
+    var x4Scale = d3.scale.linear().domain([d3.min(dataset,function(d){return d[0];}),d3.max(dataset,function(d){return d[0];})]).range([padding,w-padding*2]);
+    var y4Scale = d3.scale.sqrt().domain([d3.min(dataset,function(d){return d[1];}),d3.max(dataset,function(d){return d[1];})]).range([h-padding,padding]);
+    //var rScale = d3.scale.linear().domain([0,d3.max(dataset,function(d){return d[1];})]).range([2,5]);
+    var svgFour = d3.select("body")
+                .append("svg")
+                .attr("width",w)
+                .attr("height",h);
+    var x4Axis = d3.svg.axis().scale(x4Scale).orient("bottom").ticks(10);
+    var y4Axis = d3.svg.axis().scale(y4Scale).orient("left").ticks(10);
+
+    svgFour.selectAll('path')
+       .data(dataset)
+       .enter()
+       .append('path')
+       .attr('d',function(d){if (d[2]==0) { return arc(d);} return arced(d);})
+       .attr('fill',"white")
+       .style('stroke',function(d){if (d[2]==0 ) {
+    return "red";
+  }
+  return "blue";})
+  .attr('transform',function(d,i){ return "translate("+(xe4Scale(d[0]))+","+(y4Scale(d[1]))+")"; });
+       //.attr("cx",function(d){return xScale(d[0]);})
+       //.attr("cy",function(d){return yScale(d[1]);})
+       //.attr("r",function(d){return rScale(d[1]);});
+       //.attr("height",function(d,i){return d*4;})
+       //.attr("fill",function(d){return "rgb(0,0,"+(d*10)+")";});
+
+
+
+    svgFour.append("g").attr("class","axis").attr("transform","translate(0," + (h-padding) + ")").call(x4Axis);
+    //.attr("text-anchor","middle");
+    svgFour.append("g").attr("class","axis").attr("transform","translate(" + padding + ",0)").call(y4Axis);
+svgFour.append("text").text('Wins+Nominations (square-root-scaled) vs. IMDb Rating')
+    .attr("x",'750')
+    .attr("y",'20')
+    .attr("font-family","sans-serif")
+    .attr("font-size","21px")
+    .attr("fill","red")
+    .attr("text-anchor", "middle")
+
+
+    svgFour.append("text")      // text label for the x axis
+        .attr("x", w/2 )
+        .attr("y", h-padding/2 )
+        .style("text-anchor", "middle")
+        .text("IMDb Rating");
+
+svgFour.append("text")
+        //.attr("transform", "rotate(-90)")
+        .attr("y", -20)
+        .attr("x",-2*padding)
+
+        .attr("dy", "1em")
+        .style("text-anchor", "middle")
+        .text("Wins+Noms")
+        //.attr("transform", "rotate(-10)")
+        .attr("transform","rotate(-90)translate("+padding/2+","+1.5*padding+")");
+svgFour.append("text")      // text label for the x axis
+        .attr("x", xeScale(8.9))
+        .attr("y", yyScale(190000000) )
+        .style("text-anchor", "middle")
+        .text("Bad Rating");
+
+
+svgFour.append("text")      // text label for the x axis
+        .attr("x", xeScale(8.9))
+        .attr("y", yyScale(175000000) )
+        .style("text-anchor", "middle")
+        .text("Good Rating");
+
+d3.select("body").append("div").attr("class","pagebreak")
+
+//5th SVG
+
+    var xe5Scale = d3.scale.linear().domain([d3.min(dataset,function(d){return d[0];}),d3.max(dataset,function(d){return d[0];})]).range([padding,w-padding*2])
+    var x5Scale = d3.scale.linear().domain([d3.min(dataset,function(d){return d[0];}),d3.max(dataset,function(d){return d[0];})]).range([padding,w-padding*2]);
+    var y5Scale = d3.scale.log().domain([d3.min(dataset,function(d){return d[1];})+0.001,d3.max(dataset,function(d){return d[1];})]).range([h-padding,padding]);
+    //var rScale = d3.scale.linear().domain([0,d3.max(dataset,function(d){return d[1];})]).range([2,5]);
+    console.log(y5Scale(1))
+    var svgFive = d3.select("body")
+                .append("svg")
+                .attr("width",w)
+                .attr("height",h);
+    var x5Axis = d3.svg.axis().scale(x5Scale).orient("bottom").ticks(10);
+    var y5Axis = d3.svg.axis().scale(y5Scale).orient("left").ticks(10);
+
+    svgFive.selectAll('path')
+       .data(dataset)
+       .enter()
+       .append('path')
+       .attr('d',function(d){if (d[2]==0) { return arc(d);} return arced(d);})
+       .attr('fill',"white")
+       .style('stroke',function(d){if (d[2]==0 ) {
+    return "red";
+  }
+  return "blue";})
+  .attr('transform',function(d,i){ return "translate("+(xe5Scale(d[0]))+","+(y5Scale(d[1]+0.001))+")"; });
+       //.attr("cx",function(d){return xScale(d[0]);})
+       //.attr("cy",function(d){return yScale(d[1]);})
+       //.attr("r",function(d){return rScale(d[1]);});
+       //.attr("height",function(d,i){return d*4;})
+       //.attr("fill",function(d){return "rgb(0,0,"+(d*10)+")";});
+datall=[[8.6,290,0,200000000,80],[8.6,275,1,180000000,80]]
+       console.log(datal)
+  svgFive.append('g').selectAll('path')
+       .data(datall)
+       .enter()
+       .append('path')
+       .attr('d',function(d){if (d[2]==0) { console.log(d[0]); return arc(d);} return arced(d);})
+       .attr('fill',"white")
+       .style('stroke',function(d){if (d[2]==0 ) {
+    return "red";
+  }
+  return "blue";})
+  .attr('transform',function(d,i){ return "translate("+(xeScale(d[0]))+","+(yScale(d[1]))+")"; });
+
+    svgFive.append("g").attr("class","axis").attr("transform","translate(0," + (h-padding) + ")").call(x5Axis);
+    //.attr("text-anchor","middle");
+    svgFive.append("g").attr("class","axis").attr("transform","translate(" + padding + ",0)").call(y5Axis);
+svgFive.append("text").text('Wins+Nominations (log-scaled) vs. IMDb Rating')
+    .attr("x",'750')
+    .attr("y",'20')
+    .attr("font-family","sans-serif")
+    .attr("font-size","21px")
+    .attr("fill","red")
+    .attr("text-anchor", "middle")
+
+
+    svgFive.append("text")      // text label for the x axis
+        .attr("x", w/2 )
+        .attr("y", h-padding/2)
+        .style("text-anchor", "middle")
+        .text("IMDb Rating");
+
+svgFive.append("text")
+        //.attr("transform", "rotate(-90)")
+        .attr("y", -20)
+        .attr("x",-2*padding)
+
+        .attr("dy", "1em")
+        .style("text-anchor", "middle")
+        .text("Wins+Noms")
+        //.attr("transform", "rotate(-10)")
+        .attr("transform","rotate(-90)translate("+padding/2+","+1.5*padding+")");
+svgFive.append("text")      // text label for the x axis
+        .attr("x", xeScale(8.9))
+        .attr("y", yyScale(210000000) )
+        .style("text-anchor", "middle")
+        .text("Bad Rating");
+
+
+svgFive.append("text")      // text label for the x axis
+        .attr("x", xeScale(8.9))
+        .attr("y", yyScale(200000000) )
+        .style("text-anchor", "middle")
+        .text("Good Rating");
+
+d3.select("body").append("div").attr("class","pagebreak")
+
+});
+
+
+
+
+        </script>
+
+            </body>
+</html>

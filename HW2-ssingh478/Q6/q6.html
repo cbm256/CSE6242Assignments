@@ -1,0 +1,141 @@
+
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style>
+
+.counties {
+  fill: none;
+}
+
+.states {
+  fill: none;
+  stroke: #fff;
+  stroke-linejoin: round;
+}
+
+div.tooltip {
+    position: absolute;
+    text-align: left;
+    width: 250px;
+    height: 80px;
+    padding: 2px;
+    font: 12px sans-serif;
+    background: pink;
+    border: 0px;
+    border-radius: 8px;
+    pointer-events: none;
+}
+
+</style>
+<svg width="960" height="600"></svg>
+<script src="../lib/d3.v3.min.js"></script>
+<script src="../lib/d3-queue.v3.min.js"></script>
+<script src="../lib/topojson.v1.min.js"></script>
+<script src="../lib/d3.tip.v0.6.3.js"></script>
+
+<script>
+var width=1260;
+var height=600;
+var svg = d3.select("svg")
+            .attr("width",width)
+            .attr("height",height);
+
+var education1 = d3.map();
+var named=d3.map();
+var profession=d3.map();
+var hs=d3.map();
+var ms=d3.map();
+
+var path = d3.geo.path();
+
+var y = d3.scale.linear()
+    .domain([0, 90])
+    .rangeRound([5, 200]);
+
+var color = d3.scale.threshold()
+          .domain([0, 10, 20, 30, 40, 50, 60, 70, 80, 90])
+          .range(["#fcfbfd","#efedf5","#dadaeb","#bcbddc","#9e9ac8","#807dba","#6a51a3","#54278f","#3f007d","1a0d27"]);
+
+
+var g = svg.append("g")
+    .attr("class", "key")
+    .attr("transform", "translate(960,40)");
+
+var div = d3.select("body").append("div")
+    .attr("class", "tooltip")
+    .style("opacity", 0);
+
+g.selectAll("rect")
+  .data(color.range().map(function(d) {
+      d = color.invertExtent(d);
+      if (d[0] == null) d[0] = y.domain()[0];
+      if (d[1] == null) d[1] = y.domain()[1];
+      return d;
+    }))
+  .enter().append("rect")
+    .attr("width", 8)
+    .attr("x",0)
+    .attr("y", function(d) { return y(d[0]); })
+    .attr("height", function(d) { return y(d[1]) - y(d[0]); })
+    .attr("fill", function(d) { return color(d[0]); });
+
+g.append("text")
+    .attr("class", "caption")
+    .attr("y", y.range()[0]-10)
+    .attr("x", -40)
+    .attr("fill", "#000")
+    .attr("text-anchor", "start")
+    .attr("font-weight", "bold")
+    .text("Education rate");
+
+g.call(d3.svg.axis()
+    .orient("right")
+    .scale(y)
+    .tickSize(10)
+    .tickFormat(function(y, i) { return i ? y : y + "%"; })
+    .tickValues(color.domain()))
+  .select(".domain")
+    .remove();
+
+d3.queue()
+    .defer(d3.json, "us.json")
+    .defer(d3.csv, "education.csv", function(d) { education1.set(d.id, +d.percent_educated); named.set(d.id, d.name);})
+    //.defer(d3.csv, "education.csv", function(d) { named.set(d.id, +d.percent_educated); })
+    .defer(d3.csv, "education_details.csv", function(d) { profession.set(d.id, d.qualified_professionals); hs.set(d.id, d.high_school); ms.set(d.id, d.middle_school_or_lower); })
+    .await(ready);
+
+function ready(error, us) {
+  if (error) throw error;
+
+  svg.append("g")
+      .attr("class", "counties")
+    .selectAll("path")
+    .data(topojson.feature(us, us.objects.counties).features)
+    .enter().append("path")
+      .attr("d", path)
+      .style("fill", function(d) { return color(d.percent_educated = education1.get(d.id)); })
+    //.append("title")
+      //.text(function(d) { return d.percent_educated + "%"; })
+      .on("mouseover", function(d) {
+            div.transition()
+                .duration(200)
+                .style("opacity", .9);
+            div .html("County: "+named.get(d.id) + "<br/>"  + "Percentage Educated: "+d.percent_educated +"%" + "<br/>"  + "Qualified Professionals: " +profession.get(d.id) + "<br/>"  + "high_school_graduates: " +hs.get(d.id) + "<br/>"  + "Middle school or lower graduates: " +ms.get(d.id))
+                .style("left", (d3.event.pageX-40) + "px")
+                .style("top", (d3.event.pageY - 100) + "px");
+            })
+            .on("mouseout", function(d) {
+            div.transition()
+                .duration(500)
+                .style("opacity", 0);
+        }) ;
+
+  svg.append("path")
+      .datum(topojson.mesh(us, us.objects.states, function(a, b) { return a !== b; }))
+      .attr("class", "states")
+      .attr("d", path);
+}
+
+</script>
+
+

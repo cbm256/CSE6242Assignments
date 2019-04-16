@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+
+        <meta charset="utf-8">
+        <title>srsingh23</title>
+        <script type="text/javascript" src="../lib/d3.v3.min.js"></script>
+        <style type="text/css">
+
+             body {
+            font-family: "Arial", sans-serif;
+        }
+
+        .bar {
+            fill: #5f89ad;
+        }
+
+        .bar1 {
+          fill: red;
+        }
+
+        .axis {
+            font-size: 15px;
+        }
+        .axis1 line {
+            fill: none;
+            display: always;
+        }
+
+        .axis path,
+        .axis line {
+            fill: none;
+            display: none;
+        }
+
+        .label {
+            font-size: 15px;
+        }
+        .line {
+  fill: none;
+  stroke: #6F257F;
+  stroke-width: 5px;
+}
+        </style>
+
+    </head>
+    <body>
+      <div id="graphic"></div>
+
+        <script type="text/javascript">
+        var dataset=[{city: 'San Antonio', population_2012: 1383505, growth: {year_2013:25405, year_2014:26644 , year_2015:28593 , year_2016:23591 , year_2017:24208}},
+{city: 'New York', population_2012: 8383504, growth: {year_2013:75138 , year_2014:62493 , year_2015:61324 , year_2016:32967 , year_2017:7272}},
+{city: 'Chicago', population_2012: 2717989, growth: {year_2013:6493 , year_2014:2051 , year_2015:-1379 , year_2016:-4879 , year_2017:-3825}},
+{city: 'Los Angeles', population_2012: 3859267, growth:{year_2013:32516 , year_2014:30885 , year_2015:30791 , year_2016:27657 , year_2017:18643}},
+{city: 'Phoenix', population_2012: 1495880, growth: {year_2013:25302 , year_2014:26547 , year_2015:27310 , year_2016:27003 , year_2017:24036}}
+];
+
+  //console.log(dataset.length)
+
+  var i;
+  var sum=0;
+  var array=[];
+  for (i = 0; i < dataset.length; i++) {
+        sum=dataset[i].population_2012+dataset[i].growth.year_2013+dataset[i].growth.year_2014+dataset[i].growth.year_2015+dataset[i].growth.year_2016+dataset[i].growth.year_2017;
+        a=dataset[i].city
+        array[i]={}
+        array[i].city=a;
+        array[i].population=sum;
+       }
+var data=array.sort(function(obj1,obj2){
+  return obj1.population-obj2.population;
+})
+ //console.log(data[4])
+//data=array;
+var i;
+var p=[];
+  var sum=0;
+  var array1=[];
+  for (i = 0; i < dataset.length; i++) {
+    p=[]
+    tp=0
+        p[0]=(dataset[i].growth.year_2013)/(dataset[i].population_2012)*100;
+        tp=dataset[i].population_2012+dataset[i].growth.year_2013;
+        p[1]=dataset[i].growth.year_2014/tp*100;
+        tp=tp+dataset[i].growth.year_2014;
+        p[2]=dataset[i].growth.year_2015/tp*100;
+        tp=tp+dataset[i].growth.year_2015;
+        p[3]=dataset[i].growth.year_2016/tp*100;
+        tp=tp+dataset[i].growth.year_2016;
+        p[4]=dataset[i].growth.year_2017/tp*100;
+
+        a=dataset[i].city
+        array1[i]={}
+        array1[i].city=a;
+        array1[i].growth={years:[2013,2014,2015,2016,2017],pgr:p};
+        //array1[i].growth=p;
+       }
+/*array.sort(function(obj1,obj2){
+  return obj1.population-obj2.population;
+})
+
+*/
+
+//console.log(array1[4])
+var data2=[]
+for (i = 0; i < array1.length; i++) {
+        data2[i]={}
+        //data2[i].city=data[i].city
+        for (j = 0; j < array1.length; j++){
+          if (array1[j].city==data[i].city){
+             data2[i].years=array1[j].growth.years
+             data2[i].pgr=array1[j].growth.pgr
+
+          }
+        }
+
+        //array1[i].growth=p;
+       }
+
+//data2=array1;
+//console.log(data2[3])
+var margin = {
+            top: 15,
+            right: 25,
+            bottom: 15,
+            left: 100
+        };
+
+        var width = 660 - margin.left - margin.right,
+            height = 500 - margin.top - margin.bottom;
+        var w1=960-margin.left - margin.right;
+        var svg = d3.select("#graphic").append("svg")
+            .attr("width", width + margin.left + margin.right)
+            .attr("height", height + margin.top + margin.bottom)
+            .append("g")
+            .style("float","left")
+            .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+        var x = d3.scale.linear()
+            .range([0, w1])
+            .domain([0, d3.max(data, function (d) {
+                return d.population;
+            })]);
+
+        var y = d3.scale.ordinal()
+            .rangeRoundBands([height, 0], .1)
+            .domain(data.map(function (d) {
+                return d.city;
+            }));
+
+        //make y axis to show bar names
+        var yAxis = d3.svg.axis()
+            .scale(y)
+            //no tick marks
+            .tickSize(0)
+            .orient("left");
+
+        var gy = svg.append("g")
+            .attr("class", "axis")
+            .call(yAxis)
+
+        var bars = svg.selectAll(".bar")
+            .data(data)
+            .enter()
+            .append("g")
+
+
+        //append rects
+        bars.append("rect")
+            .attr("class", "bar")
+            .attr("y", function (d) {
+                return y(d.city);
+            })
+            .attr("height", y.rangeBand())
+            .attr("x", 0)
+            .on("mouseover", fMouseOver)
+            .on("mouseout", fMouseOut)
+            .attr("width", function (d) {
+                return x(d.population);
+            });
+
+        //add a value label to the right of each bar
+        bars.append("text")
+            .attr("class", "label")
+            //y position of the label is halfway down the bar
+            .attr("y", function (d) {
+                return y(d.city) + y.rangeBand() / 2 + 4;
+            })
+            //x position is 3 pixels to the right of the bar
+            .attr("x", function (d) {
+                return x(0) + 10;
+            })
+            .attr('fill','white')
+            .attr('font-family',12)
+            .text(function (d) {
+                return d.population;
+            })
+            ;
+w2=1500-900-margin.left
+height=200
+var svgone = d3.select("#graphic").append("svg")
+            .attr("width", w2+ margin.left)
+            .attr("height", height + margin.top + margin.bottom)
+            .attr("transform","translate(" + 0 + "," + (height-500+margin.top) + ")")
+            .style("float","up")
+            .append("g")
+function fMouseOver(d,i){
+d3.select(this).attr({
+  class:"bar1"
+});
+
+//console.log(i)
+var datan=[]
+
+        datan=[]
+        //data2[i].city=data[i].city
+             for (k=0; k<5;k++){
+             datan.push({'year':data2[i].years[k],'pgr':data2[i].pgr[k]});
+             /*datan['year']=data2[i].years[k]
+             datan['pgr']=data2[i].pgr[k]
+*/           //console.log(datan)
+
+          }
+
+
+        //array1[i].growth=p;
+
+//console.log(datan[1].year)
+datas=data2[i];
+//console.log(datas)
+//var line_plot = svg.append("g").attr("class","gg").attr("transform", "translate(" + 960+ "," + margin.top + ")");
+
+            //.style("float","right")
+            //.attr("transform", "translate(" + 60 + "," + margin.top + ")");
+
+var xx = d3.scale.ordinal()
+            .domain([2013,2014,2015,2016,2017])
+            .range([80, 80+(w2-80)/4, 80+2*(w2-80)/4,80+3*(w2-80)/4, w2])
+            ;
+
+        var yy = d3.scale.linear()
+            //.rangeRoundBands([height, 0], .1)
+            .domain([d3.min(datas.pgr, function (d) { return d}), d3.max(datas.pgr, function (d) {
+                return d;
+            })])
+            .range([height, margin.top]);
+//console.log(x(2013));
+
+var xxAxis = d3.svg.axis()
+      .scale(xx)
+      .orient("bottom")
+      .ticks(5);
+
+    var yyAxis = d3.svg.axis()
+      .scale(yy)
+      .orient("left")
+      .ticks(5);
+
+var ggy = svgone.append("g")
+            .attr("class", "axis1")
+            .attr("transform","translate(" + 80 + "," + 10 + ")")
+            .call(yyAxis)
+var ggx = svgone.append("g")
+            .attr("class", "axis1")
+            .attr("transform","translate(" + -10 + "," + height + ")")
+            .call(xxAxis)
+var line =d3.svg.line()
+
+      .x(function(d){
+        console.log(d);
+        return xx(d['year']);
+      })
+      .y(function(d) {
+        console.log(yy(d['pgr']));
+        return yy(d.pgr);
+      });
+
+svgone.append("text")      // text label for the x axis
+        .attr("x", 450)
+        .attr("y", height+2*margin.bottom)
+        .style("text-anchor", "middle")
+        .text("Year");
+svgone.append("text")      // text label for the x axis
+        .attr("x", 25)
+        .attr("y", 20)
+        .style("text-anchor", "middle")
+        .text("pct(%)");
+
+svgone.append("g")
+.data(datan)
+.attr("class","line")
+
+.append("path")
+.attr("d", line(datan))
+;
+}
+
+function fMouseOut(d,i){
+d3.select(this).attr({
+  class:"bar"
+});
+//d3.select("svgone").remove();
+svgone.selectAll("*").remove();
+}
+        </script>
