@@ -1,0 +1,3 @@
+Average Node Degree: 1.937 (It's an estimate of average connections per node.It is calculated by adding the total number of edges connected to each nodes and dividing by the total number of nodes.)
+Diameter of the graph: 8 (It measures the distance between two most faraway nodes in terms of no. of nodes)
+Average Path Length: 2.291 (It's an estimate of average of shortest distances between all possible pair of nodes.)

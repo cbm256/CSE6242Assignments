@@ -1,0 +1,4 @@
+I used Forced Atlas algorithm for layout analysis because this very network is small-world.
+I kept repulsion strength to be 100, attraction strength to be 10, Gravity to be 30 and ticked the adjust by sizes to avoid node overlap.
+I sized nodes on basis of betweenness centrality (this is a ranking on the basis of how many times a node will be traveled if we take all the shortest path from all nodes to all modes on the graph)
+and colored them on basis of modularity class to create clusters. 
